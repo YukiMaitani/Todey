@@ -10,10 +10,12 @@ import UIKit
 
 class ToDoListViewController: UITableViewController {
     
-    var itemArray = ["a", "b", "c"]
+    var itemArray: [String] = []
+    let defaults = UserDefaults.standard
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        itemArray = defaults.stringArray(forKey: "ToDoListArray") ?? []
     }
     
     //MARK: - Tabeview Datasource Methods
@@ -53,6 +55,7 @@ class ToDoListViewController: UITableViewController {
         let alert = UIAlertController(title: "新しい要素を追加します", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "追加", style: .default) { action in
             self.itemArray.append(textField.text!)
+            self.defaults.set(self.itemArray, forKey: "ToDoListArray")
             self.tableView.reloadData()
         }
         alert.addAction(action)
