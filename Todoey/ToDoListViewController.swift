@@ -10,11 +10,10 @@ import UIKit
 
 class ToDoListViewController: UITableViewController {
     
-    let itemArray = ["a", "b", "c"]
+    var itemArray = ["a", "b", "c"]
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
     }
     
     //MARK: - Tabeview Datasource Methods
@@ -45,5 +44,23 @@ class ToDoListViewController: UITableViewController {
             tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
         }
         
+    }
+    
+    //MARK: - Add New Items
+    
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        var textField = UITextField()
+        let alert = UIAlertController(title: "新しい要素を追加します", message: "", preferredStyle: .alert)
+        let action = UIAlertAction(title: "追加", style: .default) { action in
+            self.itemArray.append(textField.text!)
+            self.tableView.reloadData()
+        }
+        alert.addAction(action)
+        alert.addTextField { alertTextField in
+            alertTextField.placeholder = "要素を記入してください"
+            textField = alertTextField
+        }
+        
+        present(alert, animated: true)
     }
 }
