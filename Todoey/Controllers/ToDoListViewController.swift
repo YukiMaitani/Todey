@@ -12,10 +12,10 @@ class ToDoListViewController: UITableViewController {
     
     var itemArray: [Item] = []
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadData()
     }
     
     //MARK: - Tabeview Datasource Methods
@@ -54,7 +54,10 @@ class ToDoListViewController: UITableViewController {
         var textField = UITextField()
         let alert = UIAlertController(title: "新しい要素を追加します", message: "", preferredStyle: .alert)
         let action = UIAlertAction(title: "追加", style: .default) { action in
-            let item = Item(title: textField.text!)
+            let item = Item(context: self.context)
+            item.title = textField.text!
+            item.done = false
+            
             self.itemArray.append(item)
             self.saveItems()
         }
@@ -70,24 +73,11 @@ class ToDoListViewController: UITableViewController {
     // MARK: - Model Manupulation Methods
     
     func saveItems() {
-        let encoder = PropertyListEncoder()
         do {
-            let data = try encoder.encode(itemArray)
-            try data.write(to:dataFilePath!)
+            try context.save()
         } catch {
-            print("エンコードに失敗しました\(error)")
+            print("contextの保存に失敗しました\(error)")
         }
         self.tableView.reloadData()
-    }
-    
-    func loadData() {
-        if let data = try? Data(contentsOf: dataFilePath!) {
-            do {
-                let decoder = PropertyListDecoder()
-                itemArray = try decoder.decode([Item].self, from: data)
-            } catch {
-                print("デコードに失敗しました\(error)")
-            }
-        }
     }
 }
