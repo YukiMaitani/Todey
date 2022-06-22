@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class ToDoListViewController: UITableViewController {
     
@@ -16,6 +17,7 @@ class ToDoListViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        loadItems()
     }
     
     //MARK: - Tabeview Datasource Methods
@@ -79,5 +81,15 @@ class ToDoListViewController: UITableViewController {
             print("contextの保存に失敗しました\(error)")
         }
         self.tableView.reloadData()
+    }
+    
+    func loadItems() {
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        do {
+            itemArray = try context.fetch(request)
+        } catch {
+            print("contextの読み取りに失敗しました\(error)")
+        }
+        
     }
 }
