@@ -11,11 +11,10 @@ import UIKit
 class ToDoListViewController: UITableViewController {
     
     var itemArray: [Item] = []
-    let defaults = UserDefaults.standard
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        itemArray = defaults.array(forKey: "ToDoListArray") as? [Item] ?? []
     }
     
     //MARK: - Tabeview Datasource Methods
@@ -44,6 +43,7 @@ class ToDoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        saveItems()
         tableView.reloadData()
     }
     
@@ -55,8 +55,7 @@ class ToDoListViewController: UITableViewController {
         let action = UIAlertAction(title: "追加", style: .default) { action in
             let item = Item(title: textField.text!)
             self.itemArray.append(item)
-            self.defaults.set(self.itemArray, forKey: "ToDoListArray")
-            self.tableView.reloadData()
+            self.saveItems()
         }
         alert.addAction(action)
         alert.addTextField { alertTextField in
@@ -65,5 +64,16 @@ class ToDoListViewController: UITableViewController {
         }
         
         present(alert, animated: true)
+    }
+    
+    func saveItems() {
+        let encoder = PropertyListEncoder()
+        do {
+            let data = try encoder.encode(itemArray)
+            try data.write(to:dataFilePath!)
+        } catch {
+            print("保存に失敗しました\(error)")
+        }
+        self.tableView.reloadData()
     }
 }
