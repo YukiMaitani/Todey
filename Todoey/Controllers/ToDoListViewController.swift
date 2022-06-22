@@ -15,6 +15,7 @@ class ToDoListViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        loadData()
     }
     
     //MARK: - Tabeview Datasource Methods
@@ -66,14 +67,27 @@ class ToDoListViewController: UITableViewController {
         present(alert, animated: true)
     }
     
+    // MARK: - Model Manupulation Methods
+    
     func saveItems() {
         let encoder = PropertyListEncoder()
         do {
             let data = try encoder.encode(itemArray)
             try data.write(to:dataFilePath!)
         } catch {
-            print("保存に失敗しました\(error)")
+            print("エンコードに失敗しました\(error)")
         }
         self.tableView.reloadData()
+    }
+    
+    func loadData() {
+        if let data = try? Data(contentsOf: dataFilePath!) {
+            do {
+                let decoder = PropertyListDecoder()
+                itemArray = try decoder.decode([Item].self, from: data)
+            } catch {
+                print("デコードに失敗しました\(error)")
+            }
+        }
     }
 }
