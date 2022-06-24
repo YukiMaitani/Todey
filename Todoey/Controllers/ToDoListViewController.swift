@@ -93,3 +93,21 @@ class ToDoListViewController: UITableViewController {
         
     }
 }
+
+// MARK: - Search Bar Methods
+
+extension ToDoListViewController: UISearchBarDelegate {
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request:NSFetchRequest<Item> = Item.fetchRequest()
+        let precidate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        request.predicate = precidate
+        let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
+        request.sortDescriptors = [sortDescriptor]
+        do {
+            itemArray = try context.fetch(request)
+        } catch {
+            print("contextの読み取りに失敗しました\(error)")
+        }
+        tableView.reloadData()
+    }
+}
