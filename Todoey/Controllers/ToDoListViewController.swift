@@ -83,14 +83,13 @@ class ToDoListViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
-    func loadItems() {
-        let request: NSFetchRequest<Item> = Item.fetchRequest()
+    func loadItems(with request:NSFetchRequest<Item> = Item.fetchRequest()) {
         do {
             itemArray = try context.fetch(request)
         } catch {
             print("contextの読み取りに失敗しました\(error)")
         }
-        
+        tableView.reloadData()
     }
 }
 
@@ -103,11 +102,6 @@ extension ToDoListViewController: UISearchBarDelegate {
         request.predicate = precidate
         let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
         request.sortDescriptors = [sortDescriptor]
-        do {
-            itemArray = try context.fetch(request)
-        } catch {
-            print("contextの読み取りに失敗しました\(error)")
-        }
-        tableView.reloadData()
+        loadItems(with: request)
     }
 }
