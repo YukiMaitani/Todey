@@ -13,10 +13,14 @@ class ToDoListViewController: UITableViewController {
     
     var itemArray: [Item] = []
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    var selectedCategory:Category? {
+        didSet {
+            loadItems()
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadItems()
     }
     
     //MARK: - Tabeview Datasource Methods
@@ -58,6 +62,7 @@ class ToDoListViewController: UITableViewController {
             let item = Item(context: self.context)
             item.title = textField.text!
             item.done = false
+            item.parentCategory = self.selectedCategory
             
             self.itemArray.append(item)
             self.saveItems()
@@ -82,7 +87,13 @@ class ToDoListViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
-    func loadItems(with request:NSFetchRequest<Item> = Item.fetchRequest()) {
+    func loadItems(with request:NSFetchRequest<Item> = Item.fetchRequest(), predicate:NSPredicate? = nil) {
+        let categoryPrecidate = NSPredicate(format: "parentCategory.name CONTAINS %@", selectedCategory!.name!)
+        if let addtionalPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPrecidate,addtionalPredicate])
+        } else {
+            request.predicate = categoryPrecidate
+        }
         do {
             itemArray = try context.fetch(request)
         } catch {
@@ -98,10 +109,9 @@ extension ToDoListViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         let request:NSFetchRequest<Item> = Item.fetchRequest()
         let precidate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-        request.predicate = precidate
         let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
         request.sortDescriptors = [sortDescriptor]
-        loadItems(with: request)
+        loadItems(with: request,predicate: precidate)
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
